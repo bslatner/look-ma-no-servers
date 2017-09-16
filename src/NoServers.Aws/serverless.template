@@ -118,11 +118,11 @@
         "Cert": {
             "Type": "AWS::CertificateManager::Certificate",
             "Properties": {
-                "DomainName": "evtreg.sct.solutions",
+                "DomainName": "evtreg.yourdomain.com",
                 "DomainValidationOptions": [
                     {
-                        "DomainName": "evtreg.sct.solutions",
-                        "ValidationDomain": "sct.solutions"
+                        "DomainName": "evtreg.yourdomain.com",
+                        "ValidationDomain": "yourdomain.com"
                     }
                 ]
             }
@@ -143,7 +143,7 @@
             "Type": "AWS::CloudFront::Distribution",
             "Properties": {
                 "DistributionConfig": {
-                    "Aliases": [ "evtreg.sct.solutions" ],
+                    "Aliases": [ "evtreg.yourdomain.com" ],
                     "Comment": "Front end for Event Registration application",
                     "DefaultCacheBehavior": {
                         "ForwardedValues": {
