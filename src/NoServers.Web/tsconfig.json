@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "noImplicitAny": false,
+        "noEmitOnError": true,
+        "removeComments": false,
+        "sourceMap": true,
+        "target": "es5",
+        "lib": [
+            "dom",
+            "es5",
+            "scripthost",
+            "es2015.iterable",
+            "es2015.promise"
+        ],
+        "module": "commonjs",
+        "moduleResolution": "node"
+    },
+    "include": [
+        "./scripts/*"
+    ],
+    "compileOnSave": false
+}

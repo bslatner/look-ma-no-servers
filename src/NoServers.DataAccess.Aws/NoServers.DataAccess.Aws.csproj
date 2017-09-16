@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp1.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.3.4.17" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NoServers.DataAccess\NoServers.DataAccess.csproj" />
+  </ItemGroup>
+
+</Project>

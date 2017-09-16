@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp1.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\..\auth0.json" Link="auth0.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+
+    <PackageReference Include="Amazon.Lambda.Core" Version="1.0.0" />
+    <PackageReference Include="Amazon.Lambda.Serialization.Json" Version="1.1.0" />
+    <PackageReference Include="Amazon.Lambda.APIGatewayEvents" Version="1.1.0" />
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.3.4.17" />
+
+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <DotNetCliToolReference Include="Amazon.Lambda.Tools" Version="1.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\..\private.key" Link="private.key" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NoServers.Aws.Security\NoServers.Aws.Security.csproj" />
+    <ProjectReference Include="..\NoServers.DataAccess.Aws\NoServers.DataAccess.Aws.csproj" />
+  </ItemGroup>
+
+</Project>

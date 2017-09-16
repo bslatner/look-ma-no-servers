@@ -1,0 +1,348 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "v1",
+    "title": "Look Ma No Servers"
+  },
+  "host": "todo.sct.solutions",
+  "produces": [
+    "application/json"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/title": {
+      "get": {
+        "summary": "Get all titles.",
+        "operationId": "GetTitles",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Title"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new title.",
+        "operationId": "CreateTitle",
+        "parameters": [
+          {
+            "name": "title",
+            "description": "The title to create.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Title"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Title"
+            }
+          }
+        }
+      }
+    },
+    "/user/{identifier}": {
+      "get": {
+        "summary": "Get a user by their identifier.",
+        "operationId": "GetUserByIdentifier",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "description": "The user's identifier.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        }
+      }
+    },
+    "/user": {
+      "post": {
+        "summary": "Create a new user.",
+        "operationId": "CreateUser",
+        "parameters": [
+          {
+            "name": "user",
+            "description": "The user to create.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        }
+      }
+    },
+    "/event/date/{cutoff}": {
+      "parameters": [
+        {
+          "name": "cutoff",
+          "in": "path",
+          "description": "The cutoff date. No events prior to this date are returned.",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "summary": "Get all events after a cutoff date.",
+        "operationId": "GetEventsAfter",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Event"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/event/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "The ID of the event.",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "summary": "Get an event by its ID.",
+        "operationId": "GetEventById",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Event"
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete an event by its ID.",
+        "operationId": "DeleteEvent",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/event/active": {
+      "get": {
+        "summary": "Get the active event.",
+        "operationId": "GetActiveEvent",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Event"
+            }
+          }
+        }
+      }
+    },
+    "/event": {
+      "post": {
+        "summary": "Create an event.",
+        "operationId": "CreateEvent",
+        "parameters": [
+          {
+            "name": "event",
+            "in": "body",
+            "description": "The event to create.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Event"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Event"
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an event.",
+        "operationId": "UpdateEvent",
+        "parameters": [
+          {
+            "name": "event",
+            "in": "body",
+            "description": "The event to update.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Event"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Event"
+            }
+          }
+        }
+      }
+    },
+    "/event/{id}/registration": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "The ID of the event.",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "summary": "Get the registrations for an event.",
+        "operationId": "GetRegistrations",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Registration"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/registration": {
+      "post": {
+        "summary": "Create a new registration.",
+        "operationId": "CreateRegistration",
+        "parameters": [
+          {
+            "name": "registration",
+            "in": "body",
+            "description": "The registration to create.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Registration"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Registration"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Title": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      }
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "identifer": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        }
+      }
+    },
+    "Event": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "dateTime": {
+          "type": "string"
+        },
+        "isActive": {
+          "type": "boolean"
+        }
+      }
+    },
+    "Registration": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "eventId": {
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "emailAddress": {
+          "type": "string"
+        },
+        "company": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

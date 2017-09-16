@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.4</TargetFramework>
+	<NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Security.Cryptography.Csp">
+      <HintPath>..\..\..\..\..\..\Users\bryans\.nuget\packages\system.security.cryptography.csp\4.0.0\ref\netstandard1.3\System.Security.Cryptography.Csp.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

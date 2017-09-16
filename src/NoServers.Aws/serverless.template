@@ -1,0 +1,682 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Transform": "AWS::Serverless-2016-10-31",
+	"Description": "AWS-Based Serverless API for Event Registration application.",
+	"Parameters": {
+		"DefaultReadCapacity": {
+			"Type": "Number",
+			"Description": "Default read capacity for the DynamoDB tables.",
+			"Default": "3",
+			"MinValue": 1
+		},
+		"DefaultWriteCapacity": {
+			"Type": "Number",
+			"Description": "Default write capacity for the DynamoDB tables.",
+			"Default": "1",
+			"MinValue": 1
+		}
+	},
+
+    "Resources": {
+        "TitleTable": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+                "TableName": "event-registration-title",
+                "AttributeDefinitions": [
+                    {
+                        "AttributeName": "Id",
+                        "AttributeType": "S"
+                    }
+                ],
+                "KeySchema": [
+                    {
+                        "AttributeName": "Id",
+                        "KeyType": "HASH"
+                    }
+                ],
+                "ProvisionedThroughput": {
+                    "ReadCapacityUnits": { "Ref": "DefaultReadCapacity" },
+                    "WriteCapacityUnits": { "Ref": "DefaultWriteCapacity" }
+                }
+            }
+        },
+        "UserTable": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+                "TableName": "event-registration-user",
+                "AttributeDefinitions": [
+                    {
+                        "AttributeName": "Identifier",
+                        "AttributeType": "S"
+                    }
+                ],
+                "KeySchema": [
+                    {
+                        "AttributeName": "Identifier",
+                        "KeyType": "HASH"
+                    }
+                ],
+                "ProvisionedThroughput": {
+                    "ReadCapacityUnits": { "Ref": "DefaultReadCapacity" },
+                    "WriteCapacityUnits": { "Ref": "DefaultWriteCapacity" }
+                }
+            }
+        },
+        "EventTable": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+                "TableName": "event-registration-event",
+                "AttributeDefinitions": [
+                    {
+                        "AttributeName": "Id",
+                        "AttributeType": "S"
+                    }
+                ],
+                "KeySchema": [
+                    {
+                        "AttributeName": "Id",
+                        "KeyType": "HASH"
+                    }
+                ],
+                "ProvisionedThroughput": {
+                    "ReadCapacityUnits": { "Ref": "DefaultReadCapacity" },
+                    "WriteCapacityUnits": { "Ref": "DefaultWriteCapacity" }
+                }
+            }
+        },
+        "RegistrationTable": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+                "TableName": "event-registration-registration",
+                "AttributeDefinitions": [
+                    {
+                        "AttributeName": "Id",
+                        "AttributeType": "S"
+                    },
+                    {
+                        "AttributeName": "EventId",
+                        "AttributeType": "S"
+                    }
+                ],
+                "KeySchema": [
+                    {
+                        "AttributeName": "EventId",
+                        "KeyType": "HASH"
+                    },
+                    {
+                        "AttributeName": "Id",
+                        "KeyType": "RANGE"
+                    }
+                ],
+                "ProvisionedThroughput": {
+                    "ReadCapacityUnits": { "Ref": "DefaultReadCapacity" },
+                    "WriteCapacityUnits": { "Ref": "DefaultWriteCapacity" }
+                }
+            }
+        },
+
+        "Cert": {
+            "Type": "AWS::CertificateManager::Certificate",
+            "Properties": {
+                "DomainName": "evtreg.sct.solutions",
+                "DomainValidationOptions": [
+                    {
+                        "DomainName": "evtreg.sct.solutions",
+                        "ValidationDomain": "sct.solutions"
+                    }
+                ]
+            }
+        },
+
+        "StaticHosting": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+                "AccessControl": "Private",
+                "WebsiteConfiguration": {
+                    "ErrorDocument": "error.html",
+                    "IndexDocument": "index.html"
+                }
+            }
+        },
+
+        "FrontEnd": {
+            "Type": "AWS::CloudFront::Distribution",
+            "Properties": {
+                "DistributionConfig": {
+                    "Aliases": [ "evtreg.sct.solutions" ],
+                    "Comment": "Front end for Event Registration application",
+                    "DefaultCacheBehavior": {
+                        "ForwardedValues": {
+                            "QueryString": false
+                        },
+                        "TargetOriginId": "evt-reg-s3",
+                        "ViewerProtocolPolicy": "redirect-to-https"
+                    },
+                    "DefaultRootObject": "index.html",
+                    "Enabled": true,
+                    "Origins": [
+                        {
+                            "DomainName": { "Fn::GetAtt": [ "StaticHosting", "DomainName" ] },
+                            "Id": "evt-reg-s3",
+                            "S3OriginConfig": {
+
+                            }
+                        }
+                    ],
+                    "PriceClass": "PriceClass_100",
+                    "ViewerCertificate": {
+                        "AcmCertificateArn": { "Ref": "Cert" },
+                        "MinimumProtocolVersion": "TLSv1.2_2018",
+                        "SslSupportMethod": "sni-only"
+                    }
+                }
+            }
+        },
+
+        "StaticHostingPolicy": {
+            "Type": "AWS::S3::BucketPolicy",
+            "Properties": {
+                "Bucket": { "Ref": "StaticHosting" },
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Sid": "PublicReadGetObject",
+                            "Effect": "Allow",
+                            "Principal": "*",
+                            "Action": "s3:GetObject",
+                            "Resource": {
+                                "Fn::Sub": [
+                                    "${bucketArn}/*",
+                                    { "bucketArn": { "Fn::GetAtt": [ "StaticHosting", "Arn" ] } }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+
+        "ApiRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [ "lambda.amazonaws.com" ]
+                            },
+                            "Action": [ "sts:AssumeRole" ]
+                        }
+                    ]
+                },
+                "Path": "/",
+                "Policies": [
+                    {
+                        "PolicyName": "event-registration-api",
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Sid": "Stmt1479956091000",
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "dynamodb:BatchGetItem",
+                                        "dynamodb:BatchWriteItem",
+                                        "dynamodb:DeleteItem",
+                                        "dynamodb:DescribeTable",
+                                        "dynamodb:GetItem",
+                                        "dynamodb:PutItem",
+                                        "dynamodb:Query",
+                                        "dynamodb:Scan",
+                                        "dynamodb:UpdateItem"
+                                    ],
+                                    "Resource": [
+                                        { "Fn::GetAtt": [ "TitleTable", "Arn" ] },
+                                        { "Fn::GetAtt": [ "UserTable", "Arn" ] },
+                                        { "Fn::GetAtt": [ "EventTable", "Arn" ] },
+                                        { "Fn::GetAtt": [ "RegistrationTable", "Arn" ] }
+                                    ]
+                                },
+                                {
+                                    "Sid": "Stmt1479956091001",
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "dynamodb:Query"
+                                    ],
+                                    "Resource": [
+                                        {
+                                            "Fn::Sub": [
+                                                "${tableArn}/index/*",
+                                                { "tableArn": { "Fn::GetAtt": [ "TitleTable", "Arn" ] } }
+                                            ]
+                                        },
+                                        {
+                                            "Fn::Sub": [
+                                                "${tableArn}/index/*",
+                                                { "tableArn": { "Fn::GetAtt": [ "UserTable", "Arn" ] } }
+                                            ]
+                                        },
+                                        {
+                                            "Fn::Sub": [
+                                                "${tableArn}/index/*",
+                                                { "tableArn": { "Fn::GetAtt": [ "EventTable", "Arn" ] } }
+                                            ]
+                                        },
+                                        {
+                                            "Fn::Sub": [
+                                                "${tableArn}/index/*",
+                                                { "tableArn": { "Fn::GetAtt": [ "RegistrationTable", "Arn" ] } }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+
+        "GetTitlesOperation": {
+            "Type": "AWS::Serverless::Function",
+            "Properties": {
+                "Handler": "NoServers.Aws::NoServers.Aws.Functions::GetTitlesAsync",
+                "Runtime": "dotnetcore1.0",
+                "CodeUri": "",
+                "Description": "Get all titles.",
+                "MemorySize": 128,
+                "Timeout": 30,
+                "Role": { "Fn::GetAtt": [ "ApiRole", "Arn" ] },
+                "Events": {
+                    "GetResource": {
+                        "Type": "Api",
+                        "Properties": {
+                            "Path": "/title",
+                            "Method": "GET"
+                        }
+                    }
+                }
+            }
+        },
+        "CreateTitleOperation": {
+            "Type": "AWS::Serverless::Function",
+            "Properties": {
+                "Handler": "NoServers.Aws::NoServers.Aws.Functions::CreateTitleAsync",
+                "Runtime": "dotnetcore1.0",
+                "CodeUri": "",
+                "Description": "Create a new title.",
+                "MemorySize": 128,
+                "Timeout": 30,
+                "Role": { "Fn::GetAtt": [ "ApiRole", "Arn" ] },
+                "Events": {
+                    "PutResource": {
+                        "Type": "Api",
+                        "Properties": {
+                            "Path": "/title",
+                            "Method": "POST"
+                        }
+                    }
+                }
+            }
+        },
+        "GetUserByIdentifierOperation": {
+            "Type": "AWS::Serverless::Function",
+            "Properties": {
+                "Handler": "NoServers.Aws::NoServers.Aws.Functions::GetUserByIdentifierAsync",
+                "Runtime": "dotnetcore1.0",
+                "CodeUri": "",
+                "Description": "Get a user by their identifier.",
+                "MemorySize": 128,
+                "Timeout": 30,
+                "Role": { "Fn::GetAtt": [ "ApiRole", "Arn" ] },
+                "Events": {
+                    "PutResource": {
+                        "Type": "Api",
+                        "Properties": {
+                            "Path": "/user/{identifier}",
+                            "Method": "GET"
+                        }
+                    }
+                }
+            }
+        },
+        "CreateUserOperation": {
+            "Type": "AWS::Serverless::Function",
+            "Properties": {
+                "Handler": "NoServers.Aws::NoServers.Aws.Functions::CreateUserAsync",
+                "Runtime": "dotnetcore1.0",
+                "CodeUri": "",
+                "Description": "Create a new user.",
+                "MemorySize": 128,
+                "Timeout": 30,
+                "Role": { "Fn::GetAtt": [ "ApiRole", "Arn" ] },
+                "Events": {
+                    "PutResource": {
+                        "Type": "Api",
+                        "Properties": {
+                            "Path": "/user",
+                            "Method": "POST"
+                        }
+                    }
+                }
+            }
+        },
+        "GetEventsAfterOperation": {
+            "Type": "AWS::Serverless::Function",
+            "Properties": {
+                "Handler": "NoServers.Aws::NoServers.Aws.Functions::GetEventsAfterAsync",
+                "Runtime": "dotnetcore1.0",
+                "CodeUri": "",
+                "Description": "Get all events after a cutoff date.",
+                "MemorySize": 128,
+                "Timeout": 30,
+                "Role": { "Fn::GetAtt": [ "ApiRole", "Arn" ] },
+                "Events": {
+                    "PutResource": {
+                        "Type": "Api",
+                        "Properties": {
+                            "Path": "/event/date/{cutoff}",
+                            "Method": "GET"
+                        }
+                    }
+                }
+            }
+        },
+        "GetEventByIdOperation": {
+            "Type": "AWS::Serverless::Function",
+            "Properties": {
+                "Handler": "NoServers.Aws::NoServers.Aws.Functions::GetEventByIdAsync",
+                "Runtime": "dotnetcore1.0",
+                "CodeUri": "",
+                "Description": "Get an event by its ID.",
+                "MemorySize": 128,
+                "Timeout": 30,
+                "Role": { "Fn::GetAtt": [ "ApiRole", "Arn" ] },
+                "Events": {
+                    "PutResource": {
+                        "Type": "Api",
+                        "Properties": {
+                            "Path": "/event/{id}",
+                            "Method": "GET"
+                        }
+                    }
+                }
+            }
+        },
+        "GetActiveEventOperation": {
+            "Type": "AWS::Serverless::Function",
+            "Properties": {
+                "Handler": "NoServers.Aws::NoServers.Aws.Functions::GetActiveEventAsync",
+                "Runtime": "dotnetcore1.0",
+                "CodeUri": "",
+                "Description": "Get the active event.",
+                "MemorySize": 128,
+                "Timeout": 30,
+                "Role": { "Fn::GetAtt": [ "ApiRole", "Arn" ] },
+                "Events": {
+                    "GetResource": {
+                        "Type": "Api",
+                        "Properties": {
+                            "Path": "/event/active",
+                            "Method": "GET"
+                        }
+                    }
+                }
+            }
+        },
+        "DeleteEventOperation": {
+            "Type": "AWS::Serverless::Function",
+            "Properties": {
+                "Handler": "NoServers.Aws::NoServers.Aws.Functions::DeleteEventAsync",
+                "Runtime": "dotnetcore1.0",
+                "CodeUri": "",
+                "Description": "Delete an event by its ID.",
+                "MemorySize": 128,
+                "Timeout": 30,
+                "Role": { "Fn::GetAtt": [ "ApiRole", "Arn" ] },
+                "Events": {
+                    "PutResource": {
+                        "Type": "Api",
+                        "Properties": {
+                            "Path": "/event/{id}",
+                            "Method": "DELETE"
+                        }
+                    }
+                }
+            }
+        },
+        "CreateEventOperation": {
+            "Type": "AWS::Serverless::Function",
+            "Properties": {
+                "Handler": "NoServers.Aws::NoServers.Aws.Functions::CreateEventAsync",
+                "Runtime": "dotnetcore1.0",
+                "CodeUri": "",
+                "Description": "Create an event.",
+                "MemorySize": 128,
+                "Timeout": 30,
+                "Role": { "Fn::GetAtt": [ "ApiRole", "Arn" ] },
+                "Events": {
+                    "PutResource": {
+                        "Type": "Api",
+                        "Properties": {
+                            "Path": "/event",
+                            "Method": "POST"
+                        }
+                    }
+                }
+            }
+        },
+        "UpdateEventOperation": {
+            "Type": "AWS::Serverless::Function",
+            "Properties": {
+                "Handler": "NoServers.Aws::NoServers.Aws.Functions::UpdateEventAsync",
+                "Runtime": "dotnetcore1.0",
+                "CodeUri": "",
+                "Description": "Update an event.",
+                "MemorySize": 128,
+                "Timeout": 30,
+                "Role": { "Fn::GetAtt": [ "ApiRole", "Arn" ] },
+                "Events": {
+                    "PutResource": {
+                        "Type": "Api",
+                        "Properties": {
+                            "Path": "/event",
+                            "Method": "PUT"
+                        }
+                    }
+                }
+            }
+        },
+        "GetRegistrationsOperation": {
+            "Type": "AWS::Serverless::Function",
+            "Properties": {
+                "Handler": "NoServers.Aws::NoServers.Aws.Functions::GetRegistrationsAsync",
+                "Runtime": "dotnetcore1.0",
+                "CodeUri": "",
+                "Description": "Get the registrations for an event.",
+                "MemorySize": 128,
+                "Timeout": 30,
+                "Role": { "Fn::GetAtt": [ "ApiRole", "Arn" ] },
+                "Events": {
+                    "PutResource": {
+                        "Type": "Api",
+                        "Properties": {
+                            "Path": "/event/{id}/registration",
+                            "Method": "GET"
+                        }
+                    }
+                }
+            }
+        },
+
+        "CreateRegistrationOperation": {
+            "Type": "AWS::Serverless::Function",
+            "Properties": {
+                "Handler": "NoServers.Aws::NoServers.Aws.Functions::CreateRegistrationAsync",
+                "Runtime": "dotnetcore1.0",
+                "CodeUri": "",
+                "Description": "Create a new registration.",
+                "MemorySize": 128,
+                "Timeout": 30,
+                "Role": { "Fn::GetAtt": [ "ApiRole", "Arn" ] },
+                "Events": {
+                    "PutResource": {
+                        "Type": "Api",
+                        "Properties": {
+                            "Path": "/registration",
+                            "Method": "POST"
+                        }
+                    }
+                }
+            }
+        },
+
+        "OptionsForGetOperations": {
+            "Type": "AWS::Serverless::Function",
+            "Properties": {
+                "Handler": "NoServers.Aws::NoServers.Aws.Functions::GetGetOptionsAsync",
+                "Runtime": "dotnetcore1.0",
+                "CodeUri": "",
+                "Description": "Options for resources supporting GET.",
+                "MemorySize": 128,
+                "Timeout": 30,
+                "Role": { "Fn::GetAtt": [ "ApiRole", "Arn" ] },
+                "Events": {
+                    "OptionsGetUserByIdentifier": {
+                        "Type": "Api",
+                        "Properties": {
+                            "Path": "/user/{identifier}",
+                            "Method": "OPTIONS"
+                        }
+                    },
+                    "OptionsGetEventsAfter": {
+                        "Type": "Api",
+                        "Properties": {
+                            "Path": "/event/date/{cutoff}",
+                            "Method": "OPTIONS"
+                        }
+                    },
+                    "OptionsGetActiveEvent": {
+                        "Type": "Api",
+                        "Properties": {
+                            "Path": "/event/active",
+                            "Method": "OPTIONS"
+                        }
+                    },
+                    "OptionsGetRegistrations": {
+                        "Type": "Api",
+                        "Properties": {
+                            "Path": "/event/{id}/registration",
+                            "Method": "OPTIONS"
+                        }
+                    }
+                }
+            }
+        },
+
+        "OptionsForGetAndPostOperations": {
+            "Type": "AWS::Serverless::Function",
+            "Properties": {
+                "Handler": "NoServers.Aws::NoServers.Aws.Functions::GetGetAndPostOptionsAsync",
+                "Runtime": "dotnetcore1.0",
+                "CodeUri": "",
+                "Description": "Options for resources supporting GET and POST.",
+                "MemorySize": 128,
+                "Timeout": 30,
+                "Role": { "Fn::GetAtt": [ "ApiRole", "Arn" ] },
+                "Events": {
+                    "OptionsGetTitles": {
+                        "Type": "Api",
+                        "Properties": {
+                            "Path": "/title",
+                            "Method": "OPTIONS"
+                        }
+                    }
+                }
+            }
+        },
+
+        "OptionsForPostOperations": {
+            "Type": "AWS::Serverless::Function",
+            "Properties": {
+                "Handler": "NoServers.Aws::NoServers.Aws.Functions::GetPostOptionsAsync",
+                "Runtime": "dotnetcore1.0",
+                "CodeUri": "",
+                "Description": "Options for resources supporting POST.",
+                "MemorySize": 128,
+                "Timeout": 30,
+                "Role": { "Fn::GetAtt": [ "ApiRole", "Arn" ] },
+                "Events": {
+                    "OptionsCreateUser": {
+                        "Type": "Api",
+                        "Properties": {
+                            "Path": "/user",
+                            "Method": "OPTIONS"
+                        }
+                    },
+                    "OptionsCreateRegistration": {
+                        "Type": "Api",
+                        "Properties": {
+                            "Path": "/registration",
+                            "Method": "OPTIONS"
+                        }
+                    }
+                }
+            }
+        },
+
+        "OptionsForPostAndPutOperations": {
+            "Type": "AWS::Serverless::Function",
+            "Properties": {
+                "Handler": "NoServers.Aws::NoServers.Aws.Functions::GetPostAndPutOptionsAsync",
+                "Runtime": "dotnetcore1.0",
+                "CodeUri": "",
+                "Description": "Options for resources supporting POST and PUT.",
+                "MemorySize": 128,
+                "Timeout": 30,
+                "Role": { "Fn::GetAtt": [ "ApiRole", "Arn" ] },
+                "Events": {
+                    "OptionsCreateUser": {
+                        "Type": "Api",
+                        "Properties": {
+                            "Path": "/event",
+                            "Method": "OPTIONS"
+                        }
+                    }
+                }
+            }
+        },
+
+        "OptionsForGetAndDeleteOperations": {
+            "Type": "AWS::Serverless::Function",
+            "Properties": {
+                "Handler": "NoServers.Aws::NoServers.Aws.Functions::GetGetAndDeleteOptionsAsync",
+                "Runtime": "dotnetcore1.0",
+                "CodeUri": "",
+                "Description": "Options for resources supporting DELETE.",
+                "MemorySize": 128,
+                "Timeout": 30,
+                "Role": { "Fn::GetAtt": [ "ApiRole", "Arn" ] },
+                "Events": {
+                    "OptionsCreateUser": {
+                        "Type": "Api",
+                        "Properties": {
+                            "Path": "/event/{id}",
+                            "Method": "OPTIONS"
+                        }
+                    }
+                }
+            }
+        }
+    },
+
+	"Outputs": {
+		"TitleTable": { "Value": { "Ref": "TitleTable" } },
+		"UserTable": { "Value": { "Ref": "UserTable" } },
+		"EventTable": { "Value": { "Ref": "EventTable" } },
+		"RegistrationTable": { "Value": { "Ref": "RegistrationTable" } }
+	}
+}

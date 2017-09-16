@@ -1,0 +1,60 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.10
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NoServers.DataAccess", "NoServers.DataAccess\NoServers.DataAccess.csproj", "{00CD145D-5AB0-4C79-8C8C-D477D33718E5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NoServers.Aws", "NoServers.Aws\NoServers.Aws.csproj", "{E281E07A-B3C6-4181-93D4-F913BD6CFFF6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NoServers.DataAccess.Aws", "NoServers.DataAccess.Aws\NoServers.DataAccess.Aws.csproj", "{37E43C69-55A6-4896-AA65-42B76F2BE014}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NoServers.DataAccess.Aws.Test", "NoServers.DataAccess.Aws.Test\NoServers.DataAccess.Aws.Test.csproj", "{E7E118B4-3D6C-4F9E-89E3-1FE2E38469D3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{ACAAA1CA-965A-4330-99D2-333AD1319565}"
+	ProjectSection(SolutionItems) = preProject
+		..\swagger.json = ..\swagger.json
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NoServers.Web", "NoServers.Web\NoServers.Web.csproj", "{953114E5-815C-4902-A93A-BE8A6876F067}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoServers.Aws.Security", "NoServers.Aws.Security\NoServers.Aws.Security.csproj", "{40B19A7A-0717-484B-917D-F9AD41DC2A44}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{00CD145D-5AB0-4C79-8C8C-D477D33718E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00CD145D-5AB0-4C79-8C8C-D477D33718E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00CD145D-5AB0-4C79-8C8C-D477D33718E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00CD145D-5AB0-4C79-8C8C-D477D33718E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E281E07A-B3C6-4181-93D4-F913BD6CFFF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E281E07A-B3C6-4181-93D4-F913BD6CFFF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E281E07A-B3C6-4181-93D4-F913BD6CFFF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E281E07A-B3C6-4181-93D4-F913BD6CFFF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37E43C69-55A6-4896-AA65-42B76F2BE014}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37E43C69-55A6-4896-AA65-42B76F2BE014}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37E43C69-55A6-4896-AA65-42B76F2BE014}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37E43C69-55A6-4896-AA65-42B76F2BE014}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7E118B4-3D6C-4F9E-89E3-1FE2E38469D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7E118B4-3D6C-4F9E-89E3-1FE2E38469D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7E118B4-3D6C-4F9E-89E3-1FE2E38469D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7E118B4-3D6C-4F9E-89E3-1FE2E38469D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{953114E5-815C-4902-A93A-BE8A6876F067}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{953114E5-815C-4902-A93A-BE8A6876F067}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{953114E5-815C-4902-A93A-BE8A6876F067}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{953114E5-815C-4902-A93A-BE8A6876F067}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40B19A7A-0717-484B-917D-F9AD41DC2A44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40B19A7A-0717-484B-917D-F9AD41DC2A44}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40B19A7A-0717-484B-917D-F9AD41DC2A44}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40B19A7A-0717-484B-917D-F9AD41DC2A44}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9AC10FF5-9306-4FA1-8CF9-DA64B743217D}
+	EndGlobalSection
+EndGlobal
