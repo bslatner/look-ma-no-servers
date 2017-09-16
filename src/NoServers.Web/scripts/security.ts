@@ -3,8 +3,8 @@ import * as auth0 from "auth0-js";
 import * as dom from "./dom";
 
 const auth0Config = {
-    clientId: "zeYGV86kHrWAetV2SUVQxgtA7JFjdBAs",
-    domain: "sct.auth0.com",
+    clientId: "Your auth0 client ID",
+    domain: "yourdomain.auth0.com",
     callbackUrl: window.location.href
 };
 
